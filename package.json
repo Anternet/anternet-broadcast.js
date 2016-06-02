@@ -1,6 +1,6 @@
 {
   "name": "anternet-broadcast",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Anternet library for broadcast messages to other peers that listening on the same channel.",
   "keywords": [
     "anternet",
@@ -22,8 +22,8 @@
     "secp256k1": "^3.1.0"
   },
   "devDependencies": {
-    "anternet": "*",
-    "anternet-channel": "*",
+    "anternet": ">=0.3.0",
+    "anternet-channel": ">=0.1.0",
     "eslint": "^2.10.1",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-config-airbnb-base": "^3.0.1",
