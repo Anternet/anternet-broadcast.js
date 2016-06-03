@@ -1,6 +1,6 @@
 const crypto = require('crypto');
-const EventEmitter = require('events');
 const secp256k1 = require('secp256k1');
+const Transmitter = require('./lib/transmitter');
 
 const PRIVATE_KEY_LENGTH = 32;
 const PUBLIC_KEY_LENGTH = 33;
@@ -10,13 +10,9 @@ const MSG_HEADER_LENGTH = PUBLIC_KEY_LENGTH + SIGNATURE_LENGTH;
 const BUFFER_ENCODING = 'hex';
 const HASH_ALGORITHM = 'sha256';
 
-const MSG_TYPE_BROADCAST = 0x04;
-
-class Broadcast extends EventEmitter {
+class Broadcast {
 
   constructor(privateKey) {
-    super();
-
     if (privateKey instanceof Buffer) {
       this.privateKey = privateKey;
     } else if (typeof privateKey === 'string') {
@@ -73,22 +69,19 @@ class Broadcast extends EventEmitter {
   }
 
   send(anternet, data, port, address, callback) {
-    const dataBuf = anternet.encode(data);
-    const hash = this.constructor.createHash().update(dataBuf).digest();
+    return this.sign(anternet, data).send(port, address, callback);
+  }
 
+  sign(anternet, data) {
+    const buffer = anternet.encode(data);
+    const hash = this.constructor.createHash().update(buffer).digest();
     const signObj = secp256k1.sign(hash, this.privateKey);
-    const msg = Buffer.concat([
-      this.publicKey,
-      signObj.signature,
-      dataBuf,
-    ], MSG_HEADER_LENGTH + dataBuf.length);
 
-    anternet.request(MSG_TYPE_BROADCAST, msg, port, address, err => {
-      if (callback) return callback(err);
-
-      if (err) this.emit('error', err, port, address);
-    });
-    return this;
+    const msg = Buffer.concat(
+        [this.publicKey, signObj.signature, buffer],
+        MSG_HEADER_LENGTH + buffer.length
+    );
+    return new Transmitter(anternet, msg);
   }
 }
 
