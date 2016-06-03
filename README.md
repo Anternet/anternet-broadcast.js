@@ -13,18 +13,22 @@
 ```js
 const Anternet = require('anternet');
 const Broadcast = require('anternet-broadcast');
-
-const msg = {a: 'Hello world', foo: 'bar'};
               
 const anternet = new Anternet();
 const broadcast = Broadcast.generate();
 
-console.log(broadcast.publicKey); // print broadcast id string
+console.log(broadcast.id); // print broadcast id string
 
 // send messages to a given peer
 const address = '127.0.0.1';
-const port = 12345;
-broadcast.send(anternet, msg, port, address);
+const port = 12345; 
+const msg = {a: 'Hello world', foo: 'bar'};
+
+broadcast.send(anternet, msg, port, address, (err) => {
+  if (err) throw err;
+
+  console.log('success!');
+});
 ```
 
 ## License
